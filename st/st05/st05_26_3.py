@@ -184,3 +184,4 @@ if a in fruit_stock:
 else:
     print("해당 과일은 없습니다.")
 print(len(fruit_stock.keys()))
+
