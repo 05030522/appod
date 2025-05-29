@@ -120,8 +120,11 @@ def divide(a, b):
     c = a/b
     return c
 
-num1 = input("첫 번째 숫자를 입력하세요")
-num2 = input("두 번째 숫자를 입력하세요")
+num_1 = input("첫 번째 숫자를 입력하세요")
+num_2 = input("두 번째 숫자를 입력하세요")
+num1 = float(num_1)
+num2 = float(num_2)
+
 abc = input("원하는 연산자를 입력하세요")
 
 def calculator(num1, num2, abc):
@@ -135,3 +138,17 @@ def calculator(num1, num2, abc):
         return divide(num1, num2)
     else:
         return "잘못된 연산자입니다." # 문자열을 직접 반환
+result = calculator(num1, num2, abc)
+
+try:
+    # 사용자가 입력한 문자열을 숫자로 변환 시도
+    num1 = float(num_1)
+    num2 = float(num_2)
+
+    # 숫자 변환에 성공했을 때만 계산기 함수 호출 및 결과 출력
+    calculation_result = calculator(num1, num2, abc)
+    print(f"계산 결과: {calculation_result}")
+
+except ValueError:
+    # float() 변환 중 ValueError가 발생하면 이 부분이 실행됨
+    print("오류: 입력한 값이 숫자가 아닙니다. 정확한 숫자를 입력해주세요.")
