@@ -1,0 +1,7 @@
+[INFO] User admin logged in from 192.168.1.10
+[WARNING] Disk space low on /var. Current usage: 90%
+[ERROR] Database connection failed: Timeout expired
+[INFO] New user registration: david
+[INFO] Data backup completed successfully.
+[ERROR] Payment processing error: Card declined (005)
+[DEBUG] Request received: /api/users
