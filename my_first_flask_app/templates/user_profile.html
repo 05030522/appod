@@ -4,6 +4,16 @@
     <title>{{ user.name }}님의 프로필</title>
   </head>
   <body>
+    {# --- 플래시 메시지를 보여주는 부분 추가 --- #} {% with messages =
+    get_flashed_messages(with_categories=true) %} {% if messages %}
+    <ul class="flashes">
+      {% for message in get_flashed_messages() %}
+      <div class="alert">{{ message }}</div>
+      {% endfor %}
+    </ul>
+
+    {% endif %} {% endwith %} {# -------------------------------------- #}
+
     <h1>{{ user.name }}님의 프로필 페이지</h1>
     <p>환영합니다, {{ user.name }}님!</p>
     <p>이메일: {{ user.email }}</p>

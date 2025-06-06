@@ -1,19 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>{{ user.name }}님의 프로필</title>
+    <title>동적인 웹 페이지</title>
   </head>
   <body>
-    <h1>{{ user.name }}님의 프로필 페이지</h1>
-    <p>환영합니다, {{ user.name }}님!</p>
-    <p>이메일: {{ user.email }}</p>
-
-    <h3>보유 기술:</h3>
-    <ul>
-      {# 이것은 Jinja2의 for 반복문입니다. 파이썬과 문법이 비슷하죠? #} {% for
-      skill in user.skills %}
-      <li>{{ skill }}</li>
-      {% endfor %}
-    </ul>
+    <h1>안녕하세요, {{ name_in_html }}님!</h1>
+    <p>{{ name_in_html }}님의 나이는 {{ age_in_html }}세 이시군요!</p>
   </body>
 </html>
