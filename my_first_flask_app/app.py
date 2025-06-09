@@ -56,11 +56,12 @@ class Post(db.Model):
 #    바로 아래에 있는 함수를 실행하라는 의미입니다.
 @app.route('/')
 def index():
-    # HTML로 전달할 데이터 생성
-    my_name = "김진형"
-    my_age = 20
-    # render_template을 통해 'index.html'에 데이터 전달
-    return render_template('index.html', name_in_html=my_name, age_in_html=my_age)
+    # Post 테이블의 모든 데이터를 조회해서 리스트로 가져옵니다.
+    # order_by(Post.id.desc())는 id를 기준으로 내림차순(최신 글이 위로) 정렬하는 코드입니다.
+    all_posts = Post.query.order_by(Post.id.desc()).all()
+    
+    # index.html 템플릿에 'posts'라는 이름으로 all_posts 리스트를 전달합니다.
+    return render_template('index.html', posts=all_posts)
 
 @app.route('/about') # /about 경로를 새로 만듭니다.
 def about():
@@ -129,6 +130,47 @@ def login():
     else: # GET 요청일 경우
         return render_template('login.html')
 
+
+# 터미널에서 'flask init-db' 명령을 실행할 수 있도록 새로운 명령어 정의
+@app.cli.command("init-db")
+def init_db_command():
+    """Clear the existing data and create new tables."""
+    db.create_all()
+    print("Initialized the database.")
+
+
+# post_id에 해당하는 글을 수정하는 경로
+@app.route('/update/<int:post_id>', methods=['GET', 'POST'])
+def update(post_id):
+    # 수정할 게시글을 데이터베이스에서 찾습니다.
+    # .get_or_404()는 해당 id의 데이터가 없으면 404 Not Found 오류를 자동으로 보여줍니다.
+    post_to_update = Post.query.get_or_404(post_id)
+
+    if request.method == 'POST': # 수정 폼이 '제출'되었을 때 (POST 요청)
+        post_to_update.title = request.form['title']
+        post_to_update.content = request.form['content']
+        
+        db.session.commit() # 변경사항을 데이터베이스에 최종 저장
+        
+        flash('게시글이 성공적으로 수정되었습니다!', 'success')
+        return redirect(url_for('index')) # 수정 후 홈페이지로 리다이렉트
+    else: # 페이지에 처음 '접속'했을 때 (GET 요청)
+        # 기존 게시글 내용을 담아서 수정 페이지를 보여줌
+        return render_template('update.html', post=post_to_update)
+
+
+@app.route('/delete/<int:post_id>')
+def delete(post_id):
+    post_to_delete = Post.query.get_or_404(post_id) # 삭제할 게시글 찾기
+    
+    try:
+        db.session.delete(post_to_delete) # 세션에서 삭제
+        db.session.commit() # 데이터베이스에 최종 반영
+        flash('게시글이 성공적으로 삭제되었습니다.', 'success')
+        return redirect(url_for('index')) # 홈페이지로 리다이렉트
+    except:
+        flash('오류가 발생하여 삭제에 실패했습니다.', 'error')
+        return redirect(url_for('index'))
 
 
 if __name__ == '__main__':

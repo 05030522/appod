@@ -1,10 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>동적인 웹 페이지</title>
+    <title>나의 첫 블로그</title>
   </head>
   <body>
-    <h1>안녕하세요, {{ name_in_html }}님!</h1>
-    <p>{{ name_in_html }}님의 나이는 {{ age_in_html }}세 이시군요!</p>
+    <h1>게시글 목록</h1>
+    <hr />
+
+    {# 파이썬에서 전달받은 'posts' 리스트를 순회합니다. #} {% for post in posts
+    %}
+    <article>
+      <h2>{{ post.title }} (ID: {{ post.id }})</h2>
+      <p>{{ post.content }}</p>
+      <a href="{{ url_for('update', post_id=post.id) }}">수정하기</a>
+      {# --- 삭제 링크 추가 --- #}
+      <a href="{{ url_for('delete', post_id=post.id) }}">삭제하기</a>
+    </article>
+    <hr />
+    {% else %} {# 만약 posts 리스트가 비어있다면 이 부분이 실행됩니다. #}
+    <p>아직 게시글이 없습니다.</p>
+    {% endfor %}
   </body>
 </html>
