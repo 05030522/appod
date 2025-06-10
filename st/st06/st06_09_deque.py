@@ -1,3 +1,4 @@
+# 1. collections 모듈에서 deque를 가져옵니다.
 from collections import deque
 
 # 큐를 deque로 생성
@@ -29,5 +30,7 @@ if my_queue: # 큐가 비어있지 않다면
 try:
     my_queue.popleft()
 except IndexError:
-
     print("\n오류: 비어있는 큐에서 데이터를 꺼낼 수 없습니다.")
+
+
+    
