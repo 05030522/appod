@@ -4,44 +4,40 @@ from pydantic import BaseModel, EmailStr, Field
 
 # 같은 폴더에 있는 database.py와 models.py를 가져옵니다.
 import database, models
+import schemas
+import auth
 
 # Pydantic 모델 (데이터 검증용)
-class User(BaseModel):
-    username: str = Field(..., min_length=3, max_length=50)
-    email: EmailStr
-    age: int | None = None
+# class User(BaseModel):
+#     username: str = Field(..., min_length=3, max_length=50)
+#     email: EmailStr
+#     age: int | None = None
 
-class UserResponse(BaseModel):
-    id: int
-    username: str
-    email: EmailStr
-    age: int | None
+# class UserResponse(BaseModel):
+#     id: int
+#     username: str
+#     email: EmailStr
+#     age: int | None
 
-    class Config:
-        orm_mode = True # SQLAlchemy
+#     class Config:
+#         orm_mode = True # SQLAlchemy
 
-class UserUpdate(BaseModel):
-    email: EmailStr | None = None
-    age: int | None = None
+# class UserUpdate(BaseModel):
+#     email: EmailStr | None = None
+#     age: int | None = None
 
 router = APIRouter()
 
-@router.post("/create")
+@router.post("", response_model=schemas.UserResponse)
 # get_db를 통해 DB 세션(db)을 받고, Pydantic 모델(user)로 데이터를 받습니다.
-def create_user(user: User, db: Session = Depends(database.get_db)):
-    # 1. Pydantic 모델을 SQLAlchemy 모델로 변환합니다.
-    db_user = models.User(username=user.username, email=user.email, age=user.age)
+def create_user(user: schemas.User, db: Session = Depends(database.get_db)):
+    hashed_password = auth.get_password_hash(user.password)
+    db_user = models.User(username=user.username, email=user.email, age=user.age, hashed_password=hashed_password)
     
-    # 2. 데이터베이스 세션에 추가합니다. (아직 DB에 저장된 것 아님)
+
     db.add(db_user)
-    
-    # 3. 변경사항을 데이터베이스에 커밋(최종 저장)합니다.
     db.commit()
-    
-    # 4. 방금 저장한 데이터를 다시 읽어옵니다. (ID 등 생성된 값을 포함)
     db.refresh(db_user)
-    
-    # 5. 저장된 유저 정보를 반환합니다.
     return db_user
 
 
@@ -58,8 +54,8 @@ def read_user_by_id(user_id: int, db: Session = Depends(database.get_db)):
     return db_user
 
 
-@router.put("/{user_id}", response_model=UserResponse)
-def update_user_by_id(user_id: int, user_update: UserUpdate, db: Session = Depends(database.get_db)):
+@router.put("/{user_id}", response_model=schemas.UserResponse)
+def update_user_by_id(user_id: int, user_update: schemas.UserUpdate, db: Session = Depends(database.get_db)):
     # 1. DB에서 수정할 유저를 찾습니다.
     db_user = db.query(models.User).filter(models.User.id == user_id).first()
     if db_user is None:
@@ -94,3 +90,14 @@ def delete_user_by_id(user_id: int, db: Session = Depends(database.get_db)):
     
     # 내용 없이 204 응답만 보냅니다.
     return
+
+
+@router.get("/{user_id}/posts", response_model=list[schemas.PostResponse])
+def read_posts_by_user(user_id: int, db: Session = Depends(database.get_db)):
+    # 1. 먼저 user_id로 유저를 찾습니다.
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # 2. user.posts를 통해 해당 유저의 모든 게시글을 반환합니다.
+    return user.posts

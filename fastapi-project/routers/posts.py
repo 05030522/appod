@@ -2,53 +2,56 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, Field
 from dependencies import get_current_user
+
 import database, models
+import schemas
 
-class PostBase(BaseModel):
-    title: str
-    content: str
+# class PostBase(BaseModel):
+#     title: str
+#     content: str
 
-class PostCreate(PostBase):
-    pass
+# class PostCreate(PostBase):
+#     pass
 
-class PostResponse(PostBase):
-    id: int
-    owner_id: int
+# class PostResponse(PostBase):
+#     id: int
+#     owner_id: int
+#     owner: UserResponse
 
-    class Config:
-        orm_mode = True # SQLAlchemy
+#     class Config:
+#         orm_mode = True # SQLAlchemy
 
 
-class PostUpdate(PostBase):
-    title: str  | None = None
-    content: str  | None = None
+# class PostUpdate(PostBase):
+#     title: str  | None = None
+#     content: str  | None = None
 
         
 router = APIRouter()
 
 
-@router.post("", response_model=PostResponse)
-def create_post(post: PostCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+@router.post("", response_model=schemas.PostResponse)
+def create_post(post: schemas.PostCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
     db_post = models.Post( **post.model_dump(), owner_id=current_user.id)  # ** < 이 부분 딕셔너리 언패킹(Dictionary Unpacking)
     db.add(db_post)
     db.commit()
     db.refresh(db_post)
     return db_post
 
-@router.get("/allposts", response_model=list[PostResponse])
+@router.get("/allposts", response_model=list[schemas.PostResponse])
 def all_post(db: Session = Depends(database.get_db)):
     db_posts = db.query(models.Post).all()
     return db_posts
 
-@router.get("/{post_id}", response_model=PostResponse)
+@router.get("/{post_id}", response_model=schemas.PostResponse)
 def read_post(post_id: int, db: Session = Depends(database.get_db)):
     db_post = db.query(models.Post).filter(models.Post.id == post_id).first()
     if db_post is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_post
 
-@router.put("/{post_id}", response_model=PostResponse)
-def update_post(post_id: int, post_update: PostUpdate, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+@router.put("/{post_id}", response_model=schemas.PostResponse)
+def update_post(post_id: int, post_update: schemas.PostUpdate, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
     db_post = db.query(models.Post).filter(models.Post.id == post_id).first()
 
     if db_post is None:
