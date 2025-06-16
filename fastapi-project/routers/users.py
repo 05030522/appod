@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, Field
+from fastapi.security import OAuth2PasswordRequestForm
 
 # 같은 폴더에 있는 database.py와 models.py를 가져옵니다.
-import database, models
-import schemas
-import auth
+import database, models, auth, schemas 
 
 # Pydantic 모델 (데이터 검증용)
 # class User(BaseModel):
@@ -101,3 +100,29 @@ def read_posts_by_user(user_id: int, db: Session = Depends(database.get_db)):
     
     # 2. user.posts를 통해 해당 유저의 모든 게시글을 반환합니다.
     return user.posts
+
+
+# ===== POST: 로그인 및 JWT 발급 =====
+@router.post("/login")
+def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(), 
+    db: Session = Depends(database.get_db)
+):
+    # 1. DB에서 username으로 유저를 찾습니다.
+    user = db.query(models.User).filter(models.User.username == form_data.username).first()
+
+    # 2. 유저가 없거나, 비밀번호가 틀리면 에러를 발생시킵니다.
+    if not user or not auth.verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # 3. 유저 정보가 맞다면, JWT를 생성합니다.
+    access_token = auth.create_access_token(
+        data={"sub": user.username} # 토큰에 담을 정보
+    )
+    
+    # 4. 생성된 토큰을 반환합니다.
+    return {"access_token": access_token, "token_type": "bearer"}
