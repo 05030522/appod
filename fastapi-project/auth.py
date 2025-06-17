@@ -33,3 +33,20 @@ def create_access_token(data: dict):
     # 3. JWT 인코딩: 데이터, 비밀 키, 알고리즘을 사용해 토큰을 생성합니다.
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+# ===== JWT 검증 함수 (파일 하단에 추가) =====
+def verify_token(token: str, credentials_exception):
+    try:
+        # 1. 비밀 키를 사용해 토큰을 해독(decode)합니다.
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        # 2. 해독된 내용물에서 'sub'(사용자 이름)을 꺼냅니다.
+        username: str = payload.get("sub")
+        # 3. 사용자 이름이 없으면 에러를 발생시킵니다.
+        if username is None:
+            raise credentials_exception
+        # 4. 토큰 데이터를 반환합니다. (지금은 username만)
+        return username
+    except JWTError:
+        # 5. 해독 과정에서 에러가 발생하면(예: 유효기간 만료, 잘못된 토큰) 에러를 발생시킵니다.
+        raise credentials_exception

@@ -53,3 +53,8 @@ class PostResponse(PostBase):
 class PostUpdate(PostBase):
     title: str  | None = None
     content: str  | None = None
+
+
+class TokenRequest(BaseModel):
+    username: str
+    password: str

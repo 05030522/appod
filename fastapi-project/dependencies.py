@@ -1,6 +1,16 @@
-from fastapi import Depends, HTTPException
+# dependencies.py
+
+from fastapi import Depends, HTTPException, status
+# OAuth2PasswordBearer를 사용합니다.
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-import database, models
+import database, models, auth
+
+# ===== OAuth2 설정 =====
+# "/users/login" API 경로에서 토큰을 받아오겠다고 설정합니다.
+# 이 부분이 /docs의 Authorize 버튼 동작 방식에 영향을 줍니다.
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
+# =====================
 
 def get_db():
     db = database.SessionLocal()
@@ -9,11 +19,22 @@ def get_db():
     finally:
         db.close()
 
-# ===== 새로 추가된 가짜 유저 인증 함수 =====
-def get_current_user(db: Session = Depends(get_db)):
-    # 지금은 실제 로그인 기능이 없으므로,
-    # DB에 있는 첫 번째 유저(id=1)를 항상 "로그인한 유저"라고 가정합니다.
-    user = db.query(models.User).filter(models.User.id == 1).first()
+# get_current_user 함수입니다.
+def get_current_user(
+    token: str = Depends(oauth2_scheme), 
+    db: Session = Depends(get_db)
+):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    username = auth.verify_token(token, credentials_exception)
+    
+    user = db.query(models.User).filter(models.User.username == username).first()
+    
     if user is None:
-        raise HTTPException(status_code=404, detail="User with id 1 not found. Please create it first.")
+        raise credentials_exception
+        
     return user

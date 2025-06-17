@@ -2,28 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, Field
 from fastapi.security import OAuth2PasswordRequestForm
+from dependencies import oauth2_scheme
 
-# 같은 폴더에 있는 database.py와 models.py를 가져옵니다.
-import database, models, auth, schemas 
+import database, models, auth, schemas, dependencies
 
-# Pydantic 모델 (데이터 검증용)
-# class User(BaseModel):
-#     username: str = Field(..., min_length=3, max_length=50)
-#     email: EmailStr
-#     age: int | None = None
-
-# class UserResponse(BaseModel):
-#     id: int
-#     username: str
-#     email: EmailStr
-#     age: int | None
-
-#     class Config:
-#         orm_mode = True # SQLAlchemy
-
-# class UserUpdate(BaseModel):
-#     email: EmailStr | None = None
-#     age: int | None = None
 
 router = APIRouter()
 
@@ -102,16 +84,17 @@ def read_posts_by_user(user_id: int, db: Session = Depends(database.get_db)):
     return user.posts
 
 
-# ===== POST: 로그인 및 JWT 발급 =====
-@router.post("/login")
+# ===== 최종 수정된 POST: 로그인 및 JWT 발급 =====
+@router.post("/login", description="사용자 로그인 및 JWT 발급")
 def login_for_access_token(
+    # Pydantic 모델 대신, 다시 form_data를 사용합니다.
     form_data: OAuth2PasswordRequestForm = Depends(), 
     db: Session = Depends(database.get_db)
 ):
-    # 1. DB에서 username으로 유저를 찾습니다.
+    # request.username 대신 form_data.username 으로 접근합니다.
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
 
-    # 2. 유저가 없거나, 비밀번호가 틀리면 에러를 발생시킵니다.
+    # request.password 대신 form_data.password 로 접근합니다.
     if not user or not auth.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -119,10 +102,20 @@ def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # 3. 유저 정보가 맞다면, JWT를 생성합니다.
     access_token = auth.create_access_token(
-        data={"sub": user.username} # 토큰에 담을 정보
+        data={"sub": user.username}
     )
     
-    # 4. 생성된 토큰을 반환합니다.
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+# 이 API는 이제 JWT 인증이 필요합니다.
+@router.get("/me", response_model=schemas.UserResponse)
+def read_users_me(current_user: models.User = Depends(dependencies.get_current_user)):
+    # 'get_current_user'가 반환한 사용자 객체를 그대로 리턴합니다.
+    return current_user
+
+
+@router.get("/test-token")
+def test_token(token: str = Depends(oauth2_scheme)):
+    return {"token": token}
