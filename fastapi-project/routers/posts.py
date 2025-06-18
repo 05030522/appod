@@ -1,10 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, EmailStr, Field
 from dependencies import get_current_user
 
-import database, models
-import schemas
+import database, models, schemas
 
 # class PostBase(BaseModel):
 #     title: str

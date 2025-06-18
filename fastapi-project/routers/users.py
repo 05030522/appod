@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Header, Path
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, Field
 from fastapi.security import OAuth2PasswordRequestForm
@@ -12,11 +12,6 @@ router = APIRouter()
 
 class TokenData(BaseModel):
     token: str
-
-# @router.get("/me", response_model=schemas.UserResponse)
-# def read_users_me(current_user: models.User = Depends(dependencies.get_current_user)):
-#     # 'get_current_user'가 반환한 사용자 객체를 그대로 리턴합니다.
-#     return current_user
 
 
 @router.get("/test-token")
@@ -39,16 +34,16 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)
     return db_user
 
 
-@router.get("/{user_id}")
-def read_user_by_id(user_id: int, db: Session = Depends(database.get_db)):
-    # DB에서 해당 ID를 가진 유저를 찾습니다.
+# ===== 수정된 GET (Read): 특정 사용자 조회 =====
+@router.get("/{user_id}", response_model=schemas.UserResponse)
+def read_user_by_id(
+    # user_id 매개변수에 Path를 이용한 제약조건을 추가합니다.
+    user_id: int = Path(..., title="The ID of the user to get.", regex=r"^[0-9]+$"),
+    db: Session = Depends(database.get_db)
+):
     db_user = db.query(models.User).filter(models.User.id == user_id).first()
-    
-    # 만약 유저가 없다면, 404 에러를 발생시킵니다.
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    
-    # 유저가 있다면, 해당 유저 정보를 반환합니다.
     return db_user
 
 
@@ -129,6 +124,12 @@ def login_for_access_token(
 @router.get("/test-token")
 def test_token(token: str = Depends(oauth2_scheme)):
     return {"token": token}
+
+
+# @router.get("/me", response_model=schemas.UserResponse)
+# def read_users_me(current_user: models.User = Depends(dependencies.get_current_user)):
+#     # 'get_current_user'가 반환한 사용자 객체를 그대로 리턴합니다.
+#     return current_user
 
 
 # @router.post("/test-token-manual")
