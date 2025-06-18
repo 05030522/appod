@@ -1,40 +1,26 @@
-from pydantic import BaseModel, EmailStr, Field
+# schemas.py (수정 최종안)
 
-# User 관련 모델들
-class User(BaseModel):
-    username: str = Field(..., min_length=3, max_length=50)
-    email: EmailStr
-    password: str
-    age: int | None = None
+from pydantic import BaseModel, EmailStr
 
-class UserResponse(BaseModel):
-    id: int
+# --- User Schemas ---
+class UserBase(BaseModel):
     username: str
     email: EmailStr
-    age: int | None
 
-    class Config:
-        orm_mode = True # SQLAlchemy
+class UserCreate(UserBase):
+    password: str # 생성 시에만 비밀번호를 받음
 
 class UserUpdate(BaseModel):
     email: EmailStr | None = None
     age: int | None = None
 
-# Post 관련 모델들
-class PostBase(BaseModel):
-    title: str
-    content: str
-
-class PostCreate(PostBase):
-    pass # 나중에 owner_id를 여기서 받을 수도 있습니다.
-
-class PostResponse(PostBase):
+class UserResponse(UserBase):
     id: int
-    owner_id: int
-    owner: UserResponse # UserResponse를 그대로 사용
+    age: int | None = None
     class Config:
         orm_mode = True
 
+# --- Post Schemas ---
 class PostBase(BaseModel):
     title: str
     content: str
@@ -46,15 +32,14 @@ class PostResponse(PostBase):
     id: int
     owner_id: int
     owner: UserResponse
-
     class Config:
-        orm_mode = True # SQLAlchemy
+        orm_mode = True
 
-class PostUpdate(PostBase):
-    title: str  | None = None
-    content: str  | None = None
+class PostUpdate(BaseModel):
+    title: str | None = None
+    content: str | None = None
 
-
+# (TokenRequest는 그대로 두셔도 좋습니다)
 class TokenRequest(BaseModel):
     username: str
     password: str

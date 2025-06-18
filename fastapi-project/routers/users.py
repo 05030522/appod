@@ -9,13 +9,30 @@ import database, models, auth, schemas, dependencies
 
 router = APIRouter()
 
-@router.post("", response_model=schemas.UserResponse)
-# get_db를 통해 DB 세션(db)을 받고, Pydantic 모델(user)로 데이터를 받습니다.
-def create_user(user: schemas.User, db: Session = Depends(database.get_db)):
-    hashed_password = auth.get_password_hash(user.password)
-    db_user = models.User(username=user.username, email=user.email, age=user.age, hashed_password=hashed_password)
-    
 
+class TokenData(BaseModel):
+    token: str
+
+# @router.get("/me", response_model=schemas.UserResponse)
+# def read_users_me(current_user: models.User = Depends(dependencies.get_current_user)):
+#     # 'get_current_user'가 반환한 사용자 객체를 그대로 리턴합니다.
+#     return current_user
+
+
+@router.get("/test-token")
+def test_token(token: str = Depends(oauth2_scheme)):
+    return {"token": token}
+
+
+
+@router.post("", response_model=schemas.UserResponse)
+def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)): # <- UserCreate 사용
+    hashed_password = auth.get_password_hash(user.password)
+    db_user = models.User(
+        username=user.username,
+        email=user.email,
+        hashed_password=hashed_password
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -109,13 +126,21 @@ def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-# 이 API는 이제 JWT 인증이 필요합니다.
-@router.get("/me", response_model=schemas.UserResponse)
-def read_users_me(current_user: models.User = Depends(dependencies.get_current_user)):
-    # 'get_current_user'가 반환한 사용자 객체를 그대로 리턴합니다.
-    return current_user
-
-
 @router.get("/test-token")
 def test_token(token: str = Depends(oauth2_scheme)):
     return {"token": token}
+
+
+# @router.post("/test-token-manual")
+# def test_token_manual(token_data: TokenData, db: Session = Depends(database.get_db)):
+#     # 우리가 만든 예외를 그대로 사용
+#     credentials_exception = HTTPException(
+#         status_code=status.HTTP_401_UNAUTHORIZED,
+#         detail="Could not validate credentials"
+#     )
+    
+#     # auth.py의 토큰 검증 함수를 직접 호출
+#     username = auth.verify_token(token_data.token, credentials_exception)
+    
+#     # 검증 성공 시 username 반환
+#     return {"verified_username": username}

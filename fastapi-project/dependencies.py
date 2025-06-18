@@ -1,7 +1,4 @@
-# dependencies.py
-
-from fastapi import Depends, HTTPException, status
-# OAuth2PasswordBearer를 사용합니다.
+from fastapi import Request, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 import database, models, auth
