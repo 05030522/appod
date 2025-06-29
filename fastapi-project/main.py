@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import users, posts, comments
+from routers import users, posts, comments, uploads
 
 import models
 from database import engine
@@ -16,6 +16,7 @@ app.include_router(users.router, prefix="/users", tags=["Users"])
 # tags=["Users"]: /docs 자동문서에 'Users'라는 제목으로 API들을 그룹핑해주는 옵션입니다.
 app.include_router(posts.router, prefix="/posts", tags=["Posts"])
 app.include_router(comments.router)
+app.include_router(uploads.router)
 
 
 # 본사에 남은 아이템 관련 API
