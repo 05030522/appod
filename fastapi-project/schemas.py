@@ -18,7 +18,7 @@ class UserResponse(UserBase):
     id: int
     age: int | None = None
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # --- Post Schemas ---
 class PostBase(BaseModel):
@@ -33,7 +33,7 @@ class PostResponse(PostBase):
     owner_id: int
     owner: UserResponse
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PostUpdate(BaseModel):
     title: str | None = None
