@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, Field
 from fastapi.security import OAuth2PasswordRequestForm
 from dependencies import oauth2_scheme
+from crud import crud_user
 
 import database, models, auth, schemas, dependencies
 
@@ -21,27 +22,19 @@ def test_token(token: str = Depends(oauth2_scheme)):
 
 
 @router.post("", response_model=schemas.UserResponse)
-def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)): # <- UserCreate 사용
-    hashed_password = auth.get_password_hash(user.password)
-    db_user = models.User(
-        username=user.username,
-        email=user.email,
-        hashed_password=hashed_password
-    )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    # DB에 이미 같은 이름의 유저가 있는지 확인
+    db_user = crud_user.get_user_by_username(db, username=user.username)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Username already registered")
+    # 주방장에게 생성을 요청하고 결과를 바로 반환
+    return crud_user.create_user(db=db, user=user)
 
 
-# ===== 수정된 GET (Read): 특정 사용자 조회 =====
 @router.get("/{user_id}", response_model=schemas.UserResponse)
-def read_user_by_id(
-    # user_id 매개변수에 Path를 이용한 제약조건을 추가합니다.
-    user_id: int = Path(..., title="The ID of the user to get.", regex=r"^[0-9]+$"),
-    db: Session = Depends(database.get_db)
-):
-    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+def read_user_by_id(user_id: int, db: Session = Depends(get_db)):
+    # 주방장에게 조회를 요청
+    db_user = crud_user.get_user_by_id(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
