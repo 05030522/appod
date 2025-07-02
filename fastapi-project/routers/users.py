@@ -22,7 +22,7 @@ def test_token(token: str = Depends(oauth2_scheme)):
 
 
 @router.post("", response_model=schemas.UserResponse)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     # DB에 이미 같은 이름의 유저가 있는지 확인
     db_user = crud_user.get_user_by_username(db, username=user.username)
     if db_user:
@@ -32,7 +32,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/{user_id}", response_model=schemas.UserResponse)
-def read_user_by_id(user_id: int, db: Session = Depends(get_db)):
+def read_user_by_id(user_id: int, db: Session = Depends(database.get_db)):
     # 주방장에게 조회를 요청
     db_user = crud_user.get_user_by_id(db, user_id=user_id)
     if db_user is None:
