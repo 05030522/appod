@@ -38,7 +38,7 @@ Base.metadata.create_all(bind=engine)
 
 
 
-# ===== DB를 사용하는 API 테스트 =====
+# ===== DB를 사용하는 API 테스트 ==
 def test_create_user():
     # 1. 준비 (Arrange): API에 보낼 테스트용 데이터를 만듭니다.
     user_data = {
