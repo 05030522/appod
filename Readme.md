@@ -49,7 +49,7 @@
 ### 1. 저장소 복제
 
 ```bash
-git clone https://github.com/your-username/fastapi-project.git
+git clone https://github.com/05030522/appod.git
 cd fastapi-project
 ```
 
