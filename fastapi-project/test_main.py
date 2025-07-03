@@ -60,5 +60,5 @@ def test_create_user():
     assert data["email"] == user_data["email"]
     # 응답에 id가 포함되어 있는지 확인합니다.
     assert "id" in data
-    # 응답에 password 필드가 없는지 확인하여, 민감한 정보가 노출되지 않았는지 검증합니다.
+    # 응답에 password 필드가 없는지 확인하여, 민감한 정보가 노출되지 않았는지 검증합니다
     assert "password" not in data
