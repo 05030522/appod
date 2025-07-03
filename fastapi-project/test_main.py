@@ -1,5 +1,3 @@
-# tests/test_main.py
-
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -39,6 +37,28 @@ client = TestClient(app)
 Base.metadata.create_all(bind=engine)
 
 
-# 5. 여기에 새로운 테스트 함수들을 추가할 예정입니다.
-def test_sample(): # 임시 테스트 함수
-    assert 1 == 1
+
+# ===== DB를 사용하는 API 테스트 =====
+def test_create_user():
+    # 1. 준비 (Arrange): API에 보낼 테스트용 데이터를 만듭니다.
+    user_data = {
+        "username": "testuser",
+        "email": "test@example.com",
+        "password": "testpassword"
+    }
+    
+    # 2. 실행 (Act): /users 경로로 POST 요청을 보냅니다.
+    response = client.post("/users", json=user_data)
+    
+    # 3. 검증 (Assert):
+    # 응답 상태 코드가 200 (OK)인지 확인합니다.
+    assert response.status_code == 200
+    
+    # 응답으로 받은 JSON 데이터를 확인합니다.
+    data = response.json()
+    assert data["username"] == user_data["username"]
+    assert data["email"] == user_data["email"]
+    # 응답에 id가 포함되어 있는지 확인합니다.
+    assert "id" in data
+    # 응답에 password 필드가 없는지 확인하여, 민감한 정보가 노출되지 않았는지 검증합니다.
+    assert "password" not in data
