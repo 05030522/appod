@@ -62,3 +62,5 @@ def test_create_user():
     assert "id" in data
     # 응답에 password 필드가 없는지 확인하여, 민감한 정보가 노출되지 않았는지 검증합니다
     assert "password" not in data
+
+#CI테스트용

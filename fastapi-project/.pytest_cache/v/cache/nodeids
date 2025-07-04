@@ -1,0 +1,4 @@
+[
+  "test_app.py::test_read_docs",
+  "test_main.py::test_create_user"
+]
