@@ -1,4 +1,7 @@
 [
   "test_app.py::test_read_docs",
-  "test_main.py::test_create_user"
+  "test_main.py::test_create_duplicate_user",
+  "test_main.py::test_create_duplicate_user_fails",
+  "test_main.py::test_create_user",
+  "test_main.py::test_create_user_success"
 ]
