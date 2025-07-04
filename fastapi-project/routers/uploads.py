@@ -1,6 +1,6 @@
 import boto3
+import config 
 from fastapi import APIRouter, Depends, UploadFile, File
-import config # 우리가 만든 config.py
 
 router = APIRouter(
     prefix="/uploads",

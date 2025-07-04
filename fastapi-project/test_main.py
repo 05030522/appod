@@ -15,6 +15,7 @@ engine = create_engine(
     connect_args={"check_same_thread": False},
     poolclass=StaticPool, # 테스트용 설정
 )
+
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

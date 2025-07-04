@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+import os
 
 class Settings(BaseSettings):
     # .env 파일에서 읽어올 환경 변수들을 필드로 정의합니다.
@@ -10,7 +11,7 @@ class Settings(BaseSettings):
 
     class Config:
         # .env 파일의 경로를 지정합니다.
-        env_file = ".env"
+        env_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 
 # 설정 클래스의 인스턴스를 생성합니다.
 settings = Settings()
