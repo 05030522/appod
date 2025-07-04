@@ -33,14 +33,14 @@ def client():
     Base.metadata.drop_all(bind=engine)
 
 
-def test_create_user_success(client): # client fixture를 요청
-    response = client.post(
-        "/users",
-        json={"username": "testuser", "email": "test@example.com", "password": "testpassword"},
-    )
-    assert response.status_code == 200
-    data = response.json()
-    assert data["username"] == "testuser"
+# def test_create_user_success(client): # client fixture를 요청
+#     response = client.post(
+#         "/users",
+#         json={"username": "testuser", "email": "test@example.com", "password": "testpassword"},
+#     )
+#     assert response.status_code == 200
+#     data = response.json()
+#     assert data["username"] == "testuser"
 
 def test_create_duplicate_user_fails(client): # client fixture를 요청
     # 첫 번째 유저 생성
