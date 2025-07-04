@@ -7,14 +7,23 @@ router = APIRouter(
     tags=["Uploads"]
 )
 
-# S3 클라이언트 생성
+# # S3 클라이언트 생성
+# s3 = boto3.client(
+#     's3',
+#     aws_access_key_id=config.AWS_ACCESS_KEY_ID,
+#     aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY,
+#     region_name=config.AWS_REGION
+# )
+# BUCKET_NAME = config.S3_BUCKET_NAME
+
+# S3 클라이언트 생성 부분 수정
 s3 = boto3.client(
     's3',
-    aws_access_key_id=config.AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY,
-    region_name=config.AWS_REGION
+    aws_access_key_id=config.settings.AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=config.settings.AWS_SECRET_ACCESS_KEY,
+    region_name=config.settings.AWS_REGION
 )
-BUCKET_NAME = config.S3_BUCKET_NAME
+BUCKET_NAME = config.settings.S3_BUCKET_NAME
 
 @router.post("/image")
 async def upload_image(file: UploadFile = File(...)):
@@ -27,6 +36,7 @@ async def upload_image(file: UploadFile = File(...)):
     )
     
     # 업로드된 파일의 URL 생성
-    file_url = f"https://{BUCKET_NAME}.s3.{config.AWS_REGION}.amazonaws.com/{file.filename}"
+    # file_url = f"https://{BUCKET_NAME}.s3.{config.AWS_REGION}.amazonaws.com/{file.filename}"
+    file_url = f"https://{BUCKET_NAME}.s3.{config.settings.AWS_REGION}.amazonaws.com/{file.filename}"
     
     return {"file_url": file_url}

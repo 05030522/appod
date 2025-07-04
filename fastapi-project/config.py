@@ -1,18 +1,16 @@
-from dotenv import load_dotenv
-import os
+from pydantic_settings import BaseSettings
 
-# 현재 파일(config.py)이 있는 폴더의 경로를 가져옵니다.
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# .env 파일의 절대 경로를 만듭니다.
-dotenv_path = os.path.join(BASE_DIR, ".env")
+class Settings(BaseSettings):
+    # .env 파일에서 읽어올 환경 변수들을 필드로 정의합니다.
+    # 타입 힌트를 사용해 자동으로 형 변환 및 검증을 수행합니다.
+    AWS_ACCESS_KEY_ID: str
+    AWS_SECRET_ACCESS_KEY: str
+    AWS_REGION: str
+    S3_BUCKET_NAME: str
 
-# .env 파일이 존재하는지 확인하고 로드합니다.
-if os.path.exists(dotenv_path):
-    load_dotenv(dotenv_path)
-else:
-    print("'.env' file not found. Please create it.")
+    class Config:
+        # .env 파일의 경로를 지정합니다.
+        env_file = ".env"
 
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_REGION = os.getenv("AWS_REGION")
-S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
+# 설정 클래스의 인스턴스를 생성합니다.
+settings = Settings()
