@@ -1,6 +1,6 @@
 # schemas.py (수정 최종안)
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 
 # --- User Schemas ---
 class UserBase(BaseModel):
@@ -17,8 +17,7 @@ class UserUpdate(BaseModel):
 class UserResponse(UserBase):
     id: int
     age: int | None = None
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # --- Post Schemas ---
 class PostBase(BaseModel):
@@ -32,8 +31,7 @@ class PostResponse(PostBase):
     id: int
     owner_id: int
     owner: UserResponse
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PostUpdate(BaseModel):
     title: str | None = None

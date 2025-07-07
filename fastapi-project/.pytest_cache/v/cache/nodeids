@@ -3,5 +3,6 @@
   "test_main.py::test_create_duplicate_user",
   "test_main.py::test_create_duplicate_user_fails",
   "test_main.py::test_create_user",
-  "test_main.py::test_create_user_success"
+  "test_main.py::test_create_user_success",
+  "test_main.py::test_login_success"
 ]
