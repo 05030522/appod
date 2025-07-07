@@ -55,10 +55,7 @@ class CommentResponse(CommentBase):
     post_id: int
     owner: UserResponse # 댓글 작성자 정보 포함
 
-    class Config:
-        # Pydantic V2부터는 orm_mode 대신 from_attributes 입니다.
-        # 둘 다 써도 경고만 뜰 뿐 문제는 없습니다.
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class CommentUpdate(BaseModel):

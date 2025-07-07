@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 import os
 
 class Settings(BaseSettings):
@@ -9,9 +9,9 @@ class Settings(BaseSettings):
     AWS_REGION: str
     S3_BUCKET_NAME: str
 
-    class Config:
-        # .env 파일의 경로를 지정합니다.
-        env_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    model_config = SettingsConfigDict(
+        env_file=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    )
 
 # 설정 클래스의 인스턴스를 생성합니다.
 settings = Settings()
