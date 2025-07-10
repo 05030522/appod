@@ -1,5 +1,9 @@
 {
   "test_main.py::test_create_user": true,
   "test_main.py::test_post_lifecycle": true,
-  "test_main.py::test_success": true
+  "test_main.py::test_success": true,
+  "tests/test_main.py::test_user_creation_and_login": true,
+  "tests/test_main.py::test_single_user_creation": true,
+  "tests/test_main.py::test_read_me_after_login": true,
+  "tests/test_main.py::test_create_user_success": true
 }

@@ -6,5 +6,10 @@
   "test_main.py::test_create_user_success",
   "test_main.py::test_login_success",
   "test_main.py::test_post_lifecycle",
-  "test_main.py::test_success"
+  "test_main.py::test_success",
+  "tests/test_main.py::test_create_duplicate_user_fails",
+  "tests/test_main.py::test_create_user_success",
+  "tests/test_main.py::test_read_me_after_login",
+  "tests/test_main.py::test_single_user_creation",
+  "tests/test_main.py::test_user_creation_and_login"
 ]
